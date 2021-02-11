@@ -90,17 +90,20 @@ function App() {
     const token = await getToken();
     for (let playlist in playlists) {
       const { link } = playlists[playlist];
-      const { name, avatar, username, tracks } = await getPlaylist(token, link);
-      setPlaylists((curr) => ({
-        ...curr, // When updating current obj, don't forget to bring in the others
-        [playlist]: {
-          name: name,
-          avatar: avatar,
-          username: username,
-          tracks: tracks,
-        },
-      }));
-      console.log(tracks);
+      const playlistInfo = await getPlaylist(token, link);
+      if (playlistInfo !== undefined) {
+        const { name, avatar, username, tracks } = playlistInfo;
+        setPlaylists((curr) => ({
+          ...curr, // When updating current obj, don't forget to bring in the others
+          [playlist]: {
+            ...curr,
+            name: name,
+            avatar: avatar,
+            username: username,
+            tracks: tracks,
+          },
+        }));
+      }
     }
   };
 
@@ -138,7 +141,11 @@ function App() {
   };
 
   const getPlaylist = async (token, playlistUri) => {
+    if (playlistUri === undefined) {
+      return;
+    }
     const parsedUrl = playlistUri.split(':');
+    // TODO: Validate playlistId
     const playlistId = parsedUrl[2];
     const result = await fetch(
       `https://api.spotify.com/v1/playlists/${playlistId}`,
@@ -148,12 +155,12 @@ function App() {
       }
     );
 
-    let tracks = [];
-    const url = `https://api.spotify.com/v1/playlists/${playlistId}/tracks?market=NA&limit=100&offset=0`;
-
-    await getTracks(token, url, tracks);
-
     if (result.status === 200) {
+      let tracks = [];
+      const url = `https://api.spotify.com/v1/playlists/${playlistId}/tracks?market=NA&limit=100&offset=0`;
+
+      await getTracks(token, url, tracks);
+
       const data = await result.json();
       if (data.images.length > 1) {
         return {
@@ -170,6 +177,7 @@ function App() {
         tracks: tracks,
       };
     }
+    return undefined;
   };
 
   return (
