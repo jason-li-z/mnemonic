@@ -14,6 +14,7 @@ To do:
 - [ ] Individual User Playlist Analysis (song's tempo, key, etc)
 - [ ] Loaders during data fetching
 - [ ] Show all artists
+- [ ] Input Validation
 
 Completed:
 - [x] Connect Spotify API
