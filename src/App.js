@@ -167,21 +167,25 @@ function App() {
   };
 
   const getPlaylist = async (token, playlistUri) => {
-    if (playlistUri === undefined) {
-      return;
-    }
-
     let parsedUrl = '';
     let playlistId = '';
     if (playlistUri.startsWith('https')) {
       parsedUrl = playlistUri.substring(34, 56);
       playlistId = parsedUrl;
-    } else {
+    } else if (playlistUri.startsWith('spotify:playlist:')) {
       parsedUrl = playlistUri.split(':');
       playlistId = parsedUrl[2];
+    } else {
+      return;
     }
 
     // TODO: Validate playlistId
+
+    if (playlistId.length < 22) {
+      // Toast Message
+      return;
+    }
+
     const result = await fetch(
       `https://api.spotify.com/v1/playlists/${playlistId}`,
       {
@@ -212,6 +216,7 @@ function App() {
         tracks: tracks,
       };
     }
+    // Maybe a toast message?
     return undefined;
   };
 

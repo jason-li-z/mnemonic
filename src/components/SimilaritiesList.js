@@ -36,8 +36,6 @@ function SimilaritiesList({ tracks, duplicate, showResult }) {
     return <div>No duplicates were found</div>;
   }
 
-  console.log(tracks);
-
   return (
     <div>
       <Typography variant="h5" style={{ paddingTop: '40px' }}>
