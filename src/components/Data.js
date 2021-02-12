@@ -19,14 +19,10 @@ function Data({ playlistName, img, username, tracks }) {
       <div>
         Owner: {username} — Playlist Name: {playlistName}
         <br></br>
-        <img
-          style={{}}
-          className={classes.playlistPicture}
-          src={img}
-          alt="blank"
-        />
+        <img className={classes.playlistPicture} src={img} alt="blank" />
         <br></br>
         Total Tracks: {tracks.length}
+        <br></br>
       </div>
     );
   }
