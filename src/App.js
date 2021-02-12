@@ -2,10 +2,11 @@ import './App.css';
 import Navbar from '../src/components/Navbar';
 import Search from '../src/components/Search';
 import Data from '../src/components/Data';
+import SimilaritiesList from '../src/components/SimilaritiesList';
 
 import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import { Container, Typography, makeStyles, Button } from '@material-ui/core';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const clientId = process.env.REACT_APP_ID;
 const clientSecret = process.env.REACT_APP_SECRET;
@@ -55,6 +56,15 @@ function App() {
 
   const classes = useStyles();
 
+  const [playlistsUri, setPlaylistsUri] = useState({
+    playlistOne: {
+      link: '',
+    },
+    playlistTwo: {
+      link: '',
+    },
+  });
+
   const [playlists, setPlaylists] = useState({
     playlistOne: {
       link: '',
@@ -72,15 +82,20 @@ function App() {
     },
   });
 
+  const [similarTracks, setSimilarTracks] = useState([]);
+  const [updatedPlaylist, setUpdatedPlaylist] = useState(false);
+  const [duplicateFound, setDuplicateFound] = useState(false);
+  const [showResult, setShowResult] = useState(false);
+
   const handleChangeOne = (event) => {
-    setPlaylists((curr) => ({
-      ...curr,
+    setPlaylistsUri((currentLink) => ({
+      ...currentLink,
       playlistOne: { link: event.target.value },
     }));
   };
 
   const handleChangeTwo = (event) => {
-    setPlaylists((curr) => ({
+    setPlaylistsUri((curr) => ({
       ...curr,
       playlistTwo: { link: event.target.value },
     }));
@@ -88,15 +103,14 @@ function App() {
 
   const handleButtonClick = async (event) => {
     const token = await getToken();
-    for (let playlist in playlists) {
-      const { link } = playlists[playlist];
+    for (let playlist in playlistsUri) {
+      const { link } = playlistsUri[playlist];
       const playlistInfo = await getPlaylist(token, link);
       if (playlistInfo !== undefined) {
         const { name, avatar, username, tracks } = playlistInfo;
         setPlaylists((curr) => ({
           ...curr, // When updating current obj, don't forget to bring in the others
           [playlist]: {
-            ...curr,
             name: name,
             avatar: avatar,
             username: username,
@@ -105,7 +119,19 @@ function App() {
         }));
       }
     }
+    setUpdatedPlaylist(!updatedPlaylist);
+    setShowResult(true);
   };
+
+  useEffect(() => {
+    if (
+      playlistsUri.playlistOne.link !== '' &&
+      playlistsUri.playlistTwo.link !== ''
+    ) {
+      let result = getSimilarities();
+      setSimilarTracks(result);
+    }
+  }, [updatedPlaylist]);
 
   const getToken = async () => {
     const result = await fetch('https://accounts.spotify.com/api/token', {
@@ -180,6 +206,31 @@ function App() {
     return undefined;
   };
 
+  const getSimilarities = () => {
+    let result = [];
+    const playlistOneTracks = playlists.playlistOne.tracks;
+    const playlistTwoTracks = playlists.playlistTwo.tracks;
+
+    let playlistTwoTrackIds = {};
+
+    for (let i = 0; i < playlistTwoTracks.length; i++) {
+      const {
+        track: { id },
+      } = playlistTwoTracks[i];
+      playlistTwoTrackIds[id] = 1;
+    }
+
+    for (let i = 0; i < playlistOneTracks.length; i++) {
+      const {
+        track: { id },
+      } = playlistOneTracks[i];
+      if (playlistTwoTrackIds[id] === 1) {
+        result.push(playlistOneTracks[i]);
+      }
+    }
+    return result;
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <div className="App">
@@ -189,7 +240,7 @@ function App() {
             mnemonic.
           </Typography>
           <Typography variant="h6" className={classes.bodyline}>
-            find differences between two playlists
+            find similarities between two playlists
           </Typography>
         </Container>
         <Container style={{ paddingTop: '40px', paddingBottom: '20px' }}>
@@ -216,6 +267,18 @@ function App() {
             img={playlists.playlistTwo.avatar}
             tracks={playlists.playlistTwo.tracks}
           ></Data>
+        </Container>
+        <Container
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <SimilaritiesList
+            tracks={similarTracks}
+            showResult={showResult}
+          ></SimilaritiesList>
         </Container>
       </div>
     </ThemeProvider>
