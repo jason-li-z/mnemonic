@@ -170,9 +170,18 @@ function App() {
     if (playlistUri === undefined) {
       return;
     }
-    const parsedUrl = playlistUri.split(':');
+
+    let parsedUrl = '';
+    let playlistId = '';
+    if (playlistUri.startsWith('https')) {
+      parsedUrl = playlistUri.substring(34, 56);
+      playlistId = parsedUrl;
+    } else {
+      parsedUrl = playlistUri.split(':');
+      playlistId = parsedUrl[2];
+    }
+
     // TODO: Validate playlistId
-    const playlistId = parsedUrl[2];
     const result = await fetch(
       `https://api.spotify.com/v1/playlists/${playlistId}`,
       {
