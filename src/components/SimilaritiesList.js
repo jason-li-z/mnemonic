@@ -37,7 +37,6 @@ function SimilaritiesList({ tracks, duplicate, showResult }) {
   if (tracks.length === 0) {
     return <div>No duplicates were found</div>;
   }
-  console.log(tracks);
 
   return (
     <div>

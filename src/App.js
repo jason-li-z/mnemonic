@@ -250,10 +250,10 @@ function App() {
       <div className="App">
         <Navbar />
         <Container maxWidth="md">
-          <Typography variant="h3" className={classes.tagline}>
+          <Typography variant="h2" className={classes.tagline}>
             mnemonic.
           </Typography>
-          <Typography variant="h6" className={classes.bodyline}>
+          <Typography variant="h5" className={classes.bodyline}>
             find similarities between two playlists
           </Typography>
         </Container>
