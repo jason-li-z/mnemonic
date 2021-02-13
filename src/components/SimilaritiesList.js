@@ -9,6 +9,8 @@ import {
   Typography,
 } from '@material-ui/core';
 
+import Artists from './Artists';
+
 function renderItem(item) {
   return item.map((dups) => (
     <ListItem key={dups.track.id}>
@@ -21,7 +23,7 @@ function renderItem(item) {
       </ListItemAvatar>
       <ListItemText
         primary={dups.track.name}
-        secondary={`Artist: ${dups.track.artists[0].name}`}
+        secondary={<Artists artists={dups.track.artists}></Artists>}
       ></ListItemText>
     </ListItem>
   ));
@@ -35,6 +37,7 @@ function SimilaritiesList({ tracks, duplicate, showResult }) {
   if (tracks.length === 0) {
     return <div>No duplicates were found</div>;
   }
+  console.log(tracks);
 
   return (
     <div>
