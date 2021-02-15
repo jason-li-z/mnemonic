@@ -41,22 +41,14 @@ function SimilaritiesList({ tracks, duplicate, showResult, fade }) {
 
   if (tracks.length === 0) {
     return (
-      <Zoom
-        in={fade}
-        timeout={400}
-        style={{ transitionDelay: true ? '500ms' : '0ms' }}
-      >
+      <Zoom in={fade} timeout={400}>
         <div style={{ padding: '40px' }}>No duplicates were found</div>
       </Zoom>
     );
   }
 
   return (
-    <Zoom
-      in={fade}
-      timeout={400}
-      style={{ transitionDelay: true ? '500ms' : '0ms' }}
-    >
+    <Zoom in={fade} timeout={400}>
       <div>
         <Typography variant="h5" style={{ paddingTop: '40px' }}>
           found {tracks.length} similar tracks
