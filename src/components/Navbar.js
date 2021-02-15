@@ -9,6 +9,8 @@ import {
 } from '@material-ui/core';
 import Logo from '../components/Logo';
 
+import { Link, Route } from 'react-router-dom';
+
 const useStyles = makeStyles({
   navbarDisplay: {
     display: 'flex',
@@ -22,11 +24,16 @@ const useStyles = makeStyles({
   },
 });
 
+function Analysis() {
+  return <div></div>;
+}
+
 function Navbar() {
   const classes = useStyles();
 
   return (
     <div>
+      <Route path="/analysis" exact component={Analysis}></Route>
       <AppBar
         position="static"
         style={{
@@ -35,11 +42,22 @@ function Navbar() {
       >
         <Toolbar color="primary">
           <Container maxWidth="md" className={classes.navbarDisplay}>
-            <Logo color={'#FCE4EC'} />
+            <Link
+              to="/"
+              style={{ color: 'inherit', textDecoration: 'inherit' }}
+            >
+              {' '}
+              <Logo color={'#FCE4EC'} />
+            </Link>
             <Typography color="inherit">Mnemonic</Typography>
           </Container>
           <Container maxWidth="xs" className={classes.navbarDisplay2}>
-            <Button color="inherit">User Playlist Analysis</Button>
+            <Link
+              to="/analysis"
+              style={{ color: 'inherit', textDecoration: 'inherit' }}
+            >
+              <Button color="inherit">Individual Playlist Analysis</Button>
+            </Link>
           </Container>
         </Toolbar>
       </AppBar>
