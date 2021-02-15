@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar';
 import Search from '../components/Search';
 import Data from '../components/Data';
 import SimilaritiesList from '../components/SimilaritiesList';
+import Loader from '../components/Loader';
 
 import {
   Container,
@@ -85,13 +86,16 @@ function Home() {
   const [duplicateFound, setDuplicateFound] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [fade, setFade] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChangeOne = (event) => {
     setPlaylistsUri((currentLink) => ({
       ...currentLink,
       playlistOne: { link: event.target.value },
     }));
-    setFade(false);
+    if (fade === true) {
+      setFade(false);
+    }
   };
 
   const handleChangeTwo = (event) => {
@@ -99,10 +103,15 @@ function Home() {
       ...curr,
       playlistTwo: { link: event.target.value },
     }));
-    setFade(false);
+    if (fade === true) {
+      setFade(false);
+    }
   };
 
   const handleButtonClick = async (event) => {
+    if (!isLoading) {
+      setIsLoading(true);
+    }
     const token = await getToken();
     for (let playlist in playlistsUri) {
       const { link } = playlistsUri[playlist];
@@ -123,6 +132,7 @@ function Home() {
     setFade(true);
     setUpdatedPlaylist(!updatedPlaylist);
     setShowResult(true);
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -272,6 +282,7 @@ function Home() {
             compare
           </Button>
         </Container>
+        <Loader loading={isLoading}></Loader>
         <Container className={classes.playlistInfo}>
           <Data
             username={playlists.playlistOne.username}
