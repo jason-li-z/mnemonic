@@ -12,7 +12,7 @@ function Artists({ artists }) {
     }
   }
 
-  return <span>Artists: {artistName}</span>;
+  return <span>Artist: {artistName}</span>;
 }
 
 export default Artists;
