@@ -34,7 +34,7 @@ const useStyles = makeStyles({
   mainButton: {
     background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
     border: 0,
-    borderRadius: 3,
+    borderRadius: 20,
     boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
     color: 'white',
     height: 48,
@@ -93,7 +93,7 @@ function Home() {
       ...currentLink,
       playlistOne: { link: event.target.value },
     }));
-    if (fade === true) {
+    if (fade) {
       setFade(false);
     }
   };
@@ -103,7 +103,7 @@ function Home() {
       ...curr,
       playlistTwo: { link: event.target.value },
     }));
-    if (fade === true) {
+    if (fade) {
       setFade(false);
     }
   };
@@ -183,12 +183,11 @@ function Home() {
   const getPlaylist = async (token, playlistUri) => {
     let parsedUrl = '';
     let playlistId = '';
-    if (playlistUri.startsWith('https')) {
+    if (playlistUri.startsWith('https://open.spotify.com/')) {
       parsedUrl = playlistUri.substring(34, 56);
       playlistId = parsedUrl;
     } else if (playlistUri.startsWith('spotify:playlist:')) {
-      parsedUrl = playlistUri.split(':');
-      playlistId = parsedUrl[2];
+      playlistId = playlistUri.split(':')[2];
     } else {
       return;
     }
@@ -272,7 +271,7 @@ function Home() {
           </Typography>
         </Container>
         <Container style={{ paddingTop: '40px', paddingBottom: '20px' }}>
-          <Search label={'Playlist one'} handleChange={handleChangeOne} />
+          <Search label={'Playlist One'} handleChange={handleChangeOne} />
         </Container>
         <Container style={{ padding: '10px' }}>
           <Search label={'Playlist Two'} handleChange={handleChangeTwo} />
