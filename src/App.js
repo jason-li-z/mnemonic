@@ -1,300 +1,34 @@
-import './App.css';
-import Navbar from '../src/components/Navbar';
-import Search from '../src/components/Search';
-import Data from '../src/components/Data';
-import SimilaritiesList from '../src/components/SimilaritiesList';
+import Home from '../src/pages/Home';
+import Analysis from '../src/pages/Analysis';
 
 import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
-import { Container, Typography, makeStyles, Button } from '@material-ui/core';
-import { useState, useEffect } from 'react';
+import {
+  BrowserRouter as Router,
+  Link,
+  Route,
+  Redirect,
+  Switch,
+} from 'react-router-dom';
 
-const clientId = process.env.REACT_APP_ID;
-const clientSecret = process.env.REACT_APP_SECRET;
-
-const useStyles = makeStyles({
-  tagline: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: '50px',
-    paddingBottom: '25px',
-  },
-  bodyline: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingBottom: '25px',
-  },
-  mainButton: {
-    background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
-    border: 0,
-    borderRadius: 3,
-    boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
-    color: 'white',
-    height: 48,
-    padding: '0 30px',
+const theme = createMuiTheme({
+  typography: {
+    fontFamily: ['Poppins'].join(','),
   },
 
-  playlistInfo: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: '50px',
+  palette: {
+    type: 'light',
   },
 });
-
 function App() {
-  const theme = createMuiTheme({
-    typography: {
-      fontFamily: ['Poppins'].join(','),
-    },
-
-    palette: {
-      type: 'light',
-    },
-  });
-
-  const classes = useStyles();
-
-  const [playlistsUri, setPlaylistsUri] = useState({
-    playlistOne: {
-      link: '',
-    },
-    playlistTwo: {
-      link: '',
-    },
-  });
-
-  const [playlists, setPlaylists] = useState({
-    playlistOne: {
-      link: '',
-      username: '',
-      name: '',
-      avatar: '',
-      tracks: [],
-    },
-    playlistTwo: {
-      link: '',
-      username: '',
-      name: '',
-      avatar: '',
-      tracks: [],
-    },
-  });
-
-  const [similarTracks, setSimilarTracks] = useState([]);
-  const [updatedPlaylist, setUpdatedPlaylist] = useState(false);
-  const [duplicateFound, setDuplicateFound] = useState(false);
-  const [showResult, setShowResult] = useState(false);
-
-  const handleChangeOne = (event) => {
-    setPlaylistsUri((currentLink) => ({
-      ...currentLink,
-      playlistOne: { link: event.target.value },
-    }));
-  };
-
-  const handleChangeTwo = (event) => {
-    setPlaylistsUri((curr) => ({
-      ...curr,
-      playlistTwo: { link: event.target.value },
-    }));
-  };
-
-  const handleButtonClick = async (event) => {
-    const token = await getToken();
-    for (let playlist in playlistsUri) {
-      const { link } = playlistsUri[playlist];
-      const playlistInfo = await getPlaylist(token, link);
-      if (playlistInfo !== undefined) {
-        const { name, avatar, username, tracks } = playlistInfo;
-        setPlaylists((curr) => ({
-          ...curr, // When updating current obj, don't forget to bring in the others
-          [playlist]: {
-            name: name,
-            avatar: avatar,
-            username: username,
-            tracks: tracks,
-          },
-        }));
-      }
-    }
-    setUpdatedPlaylist(!updatedPlaylist);
-    setShowResult(true);
-  };
-
-  useEffect(() => {
-    if (
-      playlistsUri.playlistOne.link !== '' &&
-      playlistsUri.playlistTwo.link !== ''
-    ) {
-      let result = getSimilarities();
-      setSimilarTracks(result);
-    }
-  }, [updatedPlaylist]);
-
-  const getToken = async () => {
-    const result = await fetch('https://accounts.spotify.com/api/token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: 'Basic ' + btoa(`${clientId}:${clientSecret}`),
-      },
-      body: 'grant_type=client_credentials',
-    });
-
-    const data = await result.json();
-    return data.access_token;
-  };
-
-  const getTracks = async (token, url, tracks) => {
-    if (url === null) {
-      return;
-    }
-
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: { Authorization: 'Bearer ' + token },
-    });
-
-    if (response.status === 200) {
-      const data = await response.json();
-      for (let i = 0; i < data.items.length; ++i) {
-        tracks.push(data.items[i]);
-      }
-      await getTracks(token, data.next, tracks);
-    }
-  };
-
-  const getPlaylist = async (token, playlistUri) => {
-    let parsedUrl = '';
-    let playlistId = '';
-    if (playlistUri.startsWith('https')) {
-      parsedUrl = playlistUri.substring(34, 56);
-      playlistId = parsedUrl;
-    } else if (playlistUri.startsWith('spotify:playlist:')) {
-      parsedUrl = playlistUri.split(':');
-      playlistId = parsedUrl[2];
-    } else {
-      return;
-    }
-
-    // TODO: Validate playlistId
-
-    if (playlistId.length < 22) {
-      // Toast Message
-      return;
-    }
-
-    const result = await fetch(
-      `https://api.spotify.com/v1/playlists/${playlistId}`,
-      {
-        method: 'GET',
-        headers: { Authorization: 'Bearer ' + token },
-      }
-    );
-
-    if (result.status === 200) {
-      let tracks = [];
-      const url = `https://api.spotify.com/v1/playlists/${playlistId}/tracks?market=NA&limit=100&offset=0`;
-
-      await getTracks(token, url, tracks);
-
-      const data = await result.json();
-      if (data.images.length > 1) {
-        return {
-          name: data.name,
-          avatar: data.images[1].url,
-          username: data.owner.display_name,
-          tracks: tracks,
-        };
-      }
-      return {
-        name: data.name,
-        avatar: data.images[0].url,
-        username: data.owner.display_name,
-        tracks: tracks,
-      };
-    }
-    // Maybe a toast message?
-    return undefined;
-  };
-
-  const getSimilarities = () => {
-    let result = [];
-    const playlistOneTracks = playlists.playlistOne.tracks;
-    const playlistTwoTracks = playlists.playlistTwo.tracks;
-
-    let playlistTwoTrackIds = {};
-
-    for (let i = 0; i < playlistTwoTracks.length; i++) {
-      const {
-        track: { id },
-      } = playlistTwoTracks[i];
-      playlistTwoTrackIds[id] = 1;
-    }
-
-    for (let i = 0; i < playlistOneTracks.length; i++) {
-      const {
-        track: { id },
-      } = playlistOneTracks[i];
-      if (playlistTwoTrackIds[id] === 1) {
-        result.push(playlistOneTracks[i]);
-      }
-    }
-    return result;
-  };
-
   return (
     <ThemeProvider theme={theme}>
-      <div className="App">
-        <Navbar />
-        <Container maxWidth="md">
-          <Typography variant="h2" className={classes.tagline}>
-            mnemonic.
-          </Typography>
-          <Typography variant="h5" className={classes.bodyline}>
-            find similarities between two playlists
-          </Typography>
-        </Container>
-        <Container style={{ paddingTop: '40px', paddingBottom: '20px' }}>
-          <Search label={'Playlist one'} handleChange={handleChangeOne} />
-        </Container>
-        <Container style={{ padding: '10px' }}>
-          <Search label={'Playlist Two'} handleChange={handleChangeTwo} />
-        </Container>
-        <Container style={{ paddingTop: '40px' }}>
-          <Button className={classes.mainButton} onClick={handleButtonClick}>
-            compare
-          </Button>
-        </Container>
-        <Container className={classes.playlistInfo}>
-          <Data
-            username={playlists.playlistOne.username}
-            playlistName={playlists.playlistOne.name}
-            img={playlists.playlistOne.avatar}
-            tracks={playlists.playlistOne.tracks}
-          ></Data>
-          <Data
-            username={playlists.playlistTwo.username}
-            playlistName={playlists.playlistTwo.name}
-            img={playlists.playlistTwo.avatar}
-            tracks={playlists.playlistTwo.tracks}
-          ></Data>
-        </Container>
-        <Container
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <SimilaritiesList
-            tracks={similarTracks}
-            showResult={showResult}
-          ></SimilaritiesList>
-        </Container>
-      </div>
+      <Router>
+        <Switch>
+          <Route path="/" exact component={Home}></Route>
+          <Route path="/analysis" component={Analysis}></Route>
+          <Route render={() => <Redirect to={{ pathname: '/' }} />} />
+        </Switch>
+      </Router>
     </ThemeProvider>
   );
 }
