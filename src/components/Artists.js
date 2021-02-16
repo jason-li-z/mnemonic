@@ -1,6 +1,6 @@
 import React from 'react';
 
-function Artists({ artists }) {
+function Artists({ artists, label }) {
   // Artists == array
 
   let artistName = '';
@@ -12,7 +12,12 @@ function Artists({ artists }) {
     }
   }
 
-  return <span>Artist: {artistName}</span>;
+  return (
+    <span>
+      {label}
+      {artistName}
+    </span>
+  );
 }
 
 export default Artists;
