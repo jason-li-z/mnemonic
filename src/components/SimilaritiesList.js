@@ -27,7 +27,9 @@ function renderItem(item) {
         </ListItemAvatar>
         <ListItemText
           primary={'Track Name: ' + dups.track.name}
-          secondary={<Artists artists={dups.track.artists}></Artists>}
+          secondary={
+            <Artists artists={dups.track.artists} label={'Artist: '}></Artists>
+          }
         ></ListItemText>
       </ListItem>
     </Zoom>
