@@ -10,10 +10,18 @@ const useStyles = makeStyles({
   },
 });
 
-function Data({ playlistName, img, username, tracks, fade, timeout }) {
+function Data({
+  playlistName,
+  img,
+  username,
+  tracks,
+  fade,
+  timeout,
+  showResult,
+}) {
   const classes = useStyles();
 
-  if (img === '' || img === undefined) {
+  if (!showResult) {
     return <div></div>;
   } else {
     return (
@@ -23,7 +31,7 @@ function Data({ playlistName, img, username, tracks, fade, timeout }) {
             Owner: {username} — Playlist Name: {playlistName}
           </Typography>
           <br></br>
-          <img className={classes.playlistPicture} src={img} alt="blank" />
+          <img className={classes.playlistPicture} src={img} alt="" />
           <br></br>
           <Typography>Total Tracks: {tracks.length}</Typography>
         </div>
