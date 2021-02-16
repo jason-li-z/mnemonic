@@ -17,11 +17,6 @@ const useStyles = makeStyles({
     alignItems: 'center',
     justifyContent: 'center',
   },
-
-  navbarDisplay2: {
-    display: 'flex',
-    justifyContent: 'space-between',
-  },
 });
 
 function Analysis() {
@@ -51,7 +46,7 @@ function Navbar() {
             </Link>
             <Typography color="inherit">Mnemonic</Typography>
           </Container>
-          <Container maxWidth="xs" className={classes.navbarDisplay2}>
+          <Container maxWidth="md">
             <Link
               to="/analysis"
               style={{ color: 'inherit', textDecoration: 'inherit' }}
