@@ -4,6 +4,8 @@ import './Analysis.css';
 import Navbar from '../components/Navbar';
 import Search from '../components/Search';
 import AnalysisTable from '../components/AnalysisTable';
+import Data from '../components/Data';
+import Loader from '../components/Loader';
 
 import {
   Container,
@@ -58,9 +60,20 @@ function Analysis() {
   const [playlistUri, setPlaylistUri] = useState('');
   const [showResult, setShowResult] = useState(false);
   const [analysis, setAnalysis] = useState([]);
+  const [isLoading, setLoading] = useState(false);
+  const [fade, setFade] = useState(false);
+  const [playlist, setPlaylist] = useState({
+    playlistName: '',
+    img: '',
+    username: '',
+    tracks: '',
+  });
 
   const handleChange = (event) => {
     setPlaylistUri(event.target.value);
+    if (fade) {
+      setFade(false);
+    }
   };
 
   const getToken = async () => {
@@ -72,7 +85,6 @@ function Analysis() {
       },
       body: 'grant_type=client_credentials',
     });
-
     const data = await result.json();
     return data.access_token;
   };
@@ -87,15 +99,41 @@ function Analysis() {
       return;
     }
 
+    setLoading(true);
+
     const token = await getToken();
+
+    const result = await fetch(
+      `https://api.spotify.com/v1/playlists/${playlistId}`,
+      {
+        method: 'GET',
+        headers: { Authorization: 'Bearer ' + token },
+      }
+    );
+
+    if (result.status === 200) {
+      const data = await result.json();
+      const playlistInfo = {
+        playlistName: data.name,
+        img: data.images[0].url,
+        username: data.owner.display_name,
+        tracks: data.tracks.items,
+      };
+      setPlaylist(playlistInfo);
+    }
+
     let tracks = [];
-    const url = `https://api.spotify.com/v1/playlists/${playlistId}/tracks?market=NA&limit=100&offset=0`;
+    const url = `https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=100&offset=0`;
     await getTracks(token, url, tracks);
 
     let analysisResults = [];
 
-    for (let i = 0; i < tracks.length; i++) {
-      const analysisUrl = `https://api.spotify.com/v1/audio-features/${tracks[i].track.id}`;
+    let counter = 0;
+
+    while (counter < tracks.length) {
+      const trackIds = concatTrackIds(counter, tracks);
+      const analysisUrl = `https://api.spotify.com/v1/audio-features?ids=${trackIds}`;
+
       const analysisResponse = await fetch(analysisUrl, {
         method: 'GET',
         headers: { Authorization: 'Bearer ' + token },
@@ -103,17 +141,46 @@ function Analysis() {
 
       if (analysisResponse.status === 200) {
         let data = await analysisResponse.json();
-        let currentResult = {
-          ...data,
-          id: tracks[i].track.id,
-          name: tracks[i].track.name,
-          album: tracks[i].track.album,
-        };
-        analysisResults.push(currentResult);
+
+        for (let i = counter; i < counter + 100; i++) {
+          if (i >= tracks.length) {
+            break;
+          }
+
+          let currentResult = {
+            ...data.audio_features[i - counter], // result index starts from 0, max size 100
+            id: tracks[i].track.id,
+            name: tracks[i].track.name,
+            album: tracks[i].track.album,
+          };
+          analysisResults.push(currentResult);
+        }
+      }
+      counter += 100;
+    }
+
+    setShowResult(true);
+    if (analysis !== analysisResults) {
+      setAnalysis(analysisResults);
+    }
+    setFade(true);
+    setLoading(false);
+  };
+
+  const concatTrackIds = (counter, tracks) => {
+    let trackIds = '';
+
+    for (let i = counter; i < counter + 100; i++) {
+      if (i >= tracks.length) {
+        break;
+      }
+      if (i === tracks.length - 1 || i === counter + 100 - 1) {
+        trackIds += tracks[i].track.id;
+      } else {
+        trackIds += tracks[i].track.id + ',';
       }
     }
-    setShowResult(true);
-    setAnalysis(analysisResults);
+    return trackIds;
   };
 
   const getTracks = async (token, url, tracks) => {
@@ -129,7 +196,11 @@ function Analysis() {
     if (response.status === 200) {
       const data = await response.json();
       for (let i = 0; i < data.items.length; ++i) {
-        if (data.items[i].track.album.uri !== null) {
+        if (data.items[i].track === null) {
+          continue;
+        }
+
+        if (!data.items[i].track.uri.startsWith('spotify:local')) {
           tracks.push(data.items[i]);
         }
       }
@@ -154,13 +225,34 @@ function Analysis() {
         </Container>
         <Container style={{ paddingTop: '30px' }}>
           <Button className={classes.mainButton} onClick={handleClick}>
-            ANALYZE
+            analyze
           </Button>
         </Container>
-        <Container style={{ padding: '30px' }}>
+        <Loader loading={isLoading}></Loader>
+
+        <Container style={{ marginTop: '40px' }}>
+          <Data
+            playlistName={playlist.playlistName}
+            img={playlist.img}
+            username={playlist.username}
+            tracks={analysis}
+            showResult={showResult}
+            fade={fade}
+            timeout={400}
+          ></Data>
+        </Container>
+        <Container
+          style={{
+            padding: '30px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
           <AnalysisTable
             showResult={showResult}
             analysis={analysis}
+            fade={fade}
           ></AnalysisTable>
         </Container>
       </div>
