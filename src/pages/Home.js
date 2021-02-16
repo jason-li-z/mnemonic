@@ -113,11 +113,12 @@ function Home() {
       setIsLoading(true);
     }
     const token = await getToken();
+    let success = false;
     for (let playlist in playlistsUri) {
       const { link } = playlistsUri[playlist];
       const playlistInfo = await getPlaylist(token, link);
       if (playlistInfo !== undefined) {
-        const { name, avatar, username, tracks } = playlistInfo;
+        const { name, avatar, username, tracks, id } = playlistInfo;
         setPlaylists((curr) => ({
           ...curr, // When updating current obj, don't forget to bring in the others
           [playlist]: {
@@ -127,11 +128,14 @@ function Home() {
             tracks: tracks,
           },
         }));
+        success = true;
       }
     }
     setFade(true);
     setUpdatedPlaylist(!updatedPlaylist);
-    setShowResult(true);
+    if (success) {
+      setShowResult(true);
+    }
     setIsLoading(false);
   };
 
@@ -172,7 +176,11 @@ function Home() {
     if (response.status === 200) {
       const data = await response.json();
       for (let i = 0; i < data.items.length; ++i) {
-        if (data.items[i].track.album.uri !== null) {
+        if (data.items[i].track === null) {
+          continue;
+        }
+
+        if (!data.items[i].track.uri.startsWith('spotify:local')) {
           tracks.push(data.items[i]);
         }
       }
@@ -189,7 +197,7 @@ function Home() {
     } else if (playlistUri.startsWith('spotify:playlist:')) {
       playlistId = playlistUri.split(':')[2];
     } else {
-      return;
+      return undefined;
     }
 
     // TODO: Validate playlistId
@@ -209,7 +217,7 @@ function Home() {
 
     if (result.status === 200) {
       let tracks = [];
-      const url = `https://api.spotify.com/v1/playlists/${playlistId}/tracks?market=NA&limit=100&offset=0`;
+      const url = `https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=100&offset=0`;
 
       await getTracks(token, url, tracks);
 
@@ -267,7 +275,7 @@ function Home() {
             mnemonic.
           </Typography>
           <Typography variant="h5" className={classes.bodyline}>
-            find similarities between two playlists
+            find similarities between two public playlists
           </Typography>
         </Container>
         <Container style={{ paddingTop: '40px', paddingBottom: '20px' }}>
@@ -284,6 +292,7 @@ function Home() {
         <Loader loading={isLoading}></Loader>
         <Container className={classes.playlistInfo}>
           <Data
+            showResult={showResult}
             username={playlists.playlistOne.username}
             playlistName={playlists.playlistOne.name}
             img={playlists.playlistOne.avatar}
@@ -292,6 +301,7 @@ function Home() {
             timeout={500}
           ></Data>
           <Data
+            showResult={showResult}
             username={playlists.playlistTwo.username}
             playlistName={playlists.playlistTwo.name}
             img={playlists.playlistTwo.avatar}
