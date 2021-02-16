@@ -17,11 +17,12 @@ import Length from './Length';
 
 const StyledTableCell = withStyles((theme) => ({
   root: {
-    backgroundColor: theme.palette.common.black,
     color: theme.palette.common.white,
+    minWidth: '200px',
+    fontSize: 16,
   },
   body: {
-    fontSize: 14,
+    fontSize: 16,
   },
 }))(TableCell);
 
@@ -60,10 +61,14 @@ function AnalysisTable({ showResult, analysis, fade }) {
           style={{
             marginTop: '40px',
             justifyContent: 'center',
-            maxWidth: 'auto',
+            maxWidth: '2000px',
           }}
         >
-          <TableHead>
+          <TableHead
+            style={{
+              background: 'linear-gradient(45deg, #e96443 30%, #904e95 90%)',
+            }}
+          >
             <StyledTableCell align="center">Track</StyledTableCell>
             <StyledTableCell align="center">Artist</StyledTableCell>
             <StyledTableCell align="center">Key</StyledTableCell>
@@ -88,7 +93,7 @@ function AnalysisTable({ showResult, analysis, fade }) {
                   ></Avatar>
                   <Typography>{item.name}</Typography>
                 </TableCell>
-                <TableCell align="center" component="th">
+                <TableCell align="center" component="th" scope="row">
                   <Artists artists={item.album.artists}></Artists>
                 </TableCell>
                 <TableCell align="center" component="th">
