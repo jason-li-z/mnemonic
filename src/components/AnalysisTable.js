@@ -51,8 +51,6 @@ function AnalysisTable({ showResult, analysis, fade }) {
     return <div></div>;
   }
 
-  console.log(analysis);
-
   if (analysis.length > 0) {
     return (
       <Zoom in={fade}>

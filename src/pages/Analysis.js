@@ -247,15 +247,9 @@ function Analysis() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            //minWidth: '1000px',
           }}
         >
           <AnalysisTable
-            style={{
-              border: 0,
-              borderRadius: 20,
-              boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
-            }}
             showResult={showResult}
             analysis={analysis}
             fade={fade}
