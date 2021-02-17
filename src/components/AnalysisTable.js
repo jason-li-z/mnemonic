@@ -18,7 +18,7 @@ import Length from './Length';
 const StyledTableCell = withStyles((theme) => ({
   root: {
     color: theme.palette.common.white,
-    minWidth: '200px',
+    width: '20%',
     fontSize: 16,
   },
   body: {
@@ -61,7 +61,6 @@ function AnalysisTable({ showResult, analysis, fade }) {
           style={{
             marginTop: '40px',
             justifyContent: 'center',
-            maxWidth: '2000px',
           }}
         >
           <TableHead
@@ -87,7 +86,7 @@ function AnalysisTable({ showResult, analysis, fade }) {
                   }}
                 >
                   <Avatar
-                    style={{ width: '100px', height: '100px', padding: '30px' }}
+                    style={{ width: '100px', height: '100px', padding: '20px' }}
                     src={item.album.images[0].url}
                     alt=""
                   ></Avatar>
@@ -112,7 +111,7 @@ function AnalysisTable({ showResult, analysis, fade }) {
       </Zoom>
     );
   }
-  return <div>Error</div>;
+  return <div></div>;
 }
 
 export default AnalysisTable;
