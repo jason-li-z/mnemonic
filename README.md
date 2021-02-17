@@ -14,9 +14,8 @@ Mnemonic is an web app that displays similarities and differences between two sp
 
 
 To do:
-- [ ] Style Individual User Playlist Analysis (song's tempo, key, etc)
-- [ ] Loaders during data fetching (analysis page)
-- [ ] Input Validation
+- [ ] Input Validation/Sanitize Input
+- [ ] Share Feature (in similarities)
 
 Completed:
 - [x] Connect Spotify API
@@ -25,4 +24,5 @@ Completed:
 - [x] Show all artists
 - [x] Loaders during data fetching (home page)
 - [x] Load Individual User Playlist Analysis (song's tempo, key, etc)
-
+- [x] Loaders during data fetching (analysis page)
+- [x] Style Individual User Playlist Analysis (song's tempo, key, etc)
