@@ -7,10 +7,6 @@ Live Site: https://mneonic.herokuapp.com/
 #### Current Demo:
 ![alt text](https://github.com/jason-li-z/mnemonic/blob/master/logo/basic_demo3.gif)
 
-#### Previous Demo:
-![alt text](https://github.com/jason-li-z/mnemonic/blob/master/logo/basic_demo2.gif)
-
-
 #### Previous UI: 
 ![alt text](https://github.com/jason-li-z/mnemonic/blob/master/logo/mockup.png)
 
