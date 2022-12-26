@@ -2,13 +2,10 @@
 
 Mnemonic is an web app that displays similarities and differences between two spotify playlists.
 
-Live Site: https://mneonic.herokuapp.com/
+Live Site: ~~https://mneonic.herokuapp.com/~~ (currently down)
 
 #### Current Demo:
 ![alt text](https://github.com/jason-li-z/mnemonic/blob/master/logo/basic_demo3.gif)
-
-#### Previous UI: 
-![alt text](https://github.com/jason-li-z/mnemonic/blob/master/logo/mockup.png)
 
 
 To do:
